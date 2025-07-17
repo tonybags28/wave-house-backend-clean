@@ -15,6 +15,7 @@ from src.routes.payment import payment_bp
 from src.routes.verification import verification_bp
 from src.routes.simple_booking import simple_booking_bp
 from src.routes.direct_admin import direct_admin_bp
+from src.routes.contact import contact_bp
 
 # Import database initialization
 import psycopg
@@ -66,6 +67,7 @@ app.register_blueprint(payment_bp, url_prefix='/api')
 app.register_blueprint(verification_bp, url_prefix='/api')
 app.register_blueprint(simple_booking_bp, url_prefix='/api')
 app.register_blueprint(direct_admin_bp, url_prefix='/api')
+app.register_blueprint(contact_bp)
 
 # Health check endpoint
 @app.route('/')
