@@ -711,22 +711,3 @@ def update_booking_status(booking_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/blocked-slot/<int:slot_id>', methods=['DELETE'])
-@cross_origin()
-def delete_blocked_slot(slot_id):
-    """Delete a blocked slot"""
-    try:
-        slot = BlockedSlot.query.get(slot_id)
-        if not slot:
-            return jsonify({'success': False, 'error': 'Blocked slot not found'}), 404
-        
-        db.session.delete(slot)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': 'Blocked slot removed successfully'})
-        
-    except Exception as e:
-        print(f"Error deleting blocked slot: {e}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
-

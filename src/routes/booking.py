@@ -958,24 +958,6 @@ def wave_admin_manage_blocks():
     """
     return manage_html
 
-@booking_bp.route('/delete-blocked-slot', methods=['POST'])
-def delete_blocked_slot():
-    """Delete a single blocked slot"""
-    try:
-        data = request.get_json()
-        slot_id = data.get('slot_id')
-        
-        slot = BlockedSlot.query.get(slot_id)
-        if slot:
-            db.session.delete(slot)
-            db.session.commit()
-            return jsonify({'success': True})
-        else:
-            return jsonify({'success': False, 'error': 'Slot not found'})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-
 @booking_bp.route('/delete-blocked-slots-by-date', methods=['POST'])
 def delete_blocked_slots_by_date():
     """Delete all blocked slots for a specific date"""
@@ -1012,51 +994,5 @@ def get_admin_stats():
             'blocked': blocked_slots
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@booking_bp.route('/delete-blocked-slot', methods=['POST'])
-def delete_blocked_slot():
-    """Delete a specific blocked slot"""
-    try:
-        data = request.get_json()
-        slot_id = data.get('slot_id')
-        
-        if not slot_id:
-            return jsonify({'error': 'Slot ID is required'}), 400
-        
-        slot = BlockedSlot.query.get(slot_id)
-        if not slot:
-            return jsonify({'error': 'Slot not found'}), 404
-        
-        db.session.delete(slot)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': 'Blocked slot deleted successfully'})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-@booking_bp.route('/delete-blocked-slots-by-date', methods=['POST'])
-def delete_blocked_slots_by_date():
-    """Delete all blocked slots for a specific date"""
-    try:
-        data = request.get_json()
-        date = data.get('date')
-        
-        if not date:
-            return jsonify({'error': 'Date is required'}), 400
-        
-        # Delete all slots for the specified date
-        deleted_count = BlockedSlot.query.filter_by(date=date).delete()
-        db.session.commit()
-        
-        return jsonify({
-            'success': True, 
-            'message': f'Deleted {deleted_count} blocked slots for {date}',
-            'deleted_count': deleted_count
-        })
-    except Exception as e:
-        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
