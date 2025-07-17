@@ -17,8 +17,8 @@ from src.routes.simple_booking import simple_booking_bp
 from src.routes.direct_admin import direct_admin_bp
 
 # Import database initialization
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import psycopg
+from psycopg import sql
 
 def initialize_database():
     """Initialize database tables for Wave House booking system"""
@@ -29,8 +29,7 @@ def initialize_database():
     
     try:
         # Connect to PostgreSQL server
-        conn = psycopg2.connect(database_url)
-        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        conn = psycopg.connect(database_url)
         cursor = conn.cursor()
         
         print("Database connection successful!")
