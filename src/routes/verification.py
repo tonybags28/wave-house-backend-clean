@@ -133,6 +133,7 @@ def create_verification_session():
             db.session.commit()
             
             return jsonify({
+                'session_id': verification_session.id,
                 'verification_session_id': verification_session.id,
                 'client_secret': verification_session.client_secret,
                 'url': verification_session.url,
@@ -195,4 +196,50 @@ def check_verification_status():
     except Exception as e:
         print(f"Error checking verification status: {str(e)}")
         return jsonify({'error': 'Failed to check verification status'}), 500
+
+@verification_bp.route('/api/verification/check-session/<session_id>', methods=['GET'])
+def check_verification_session(session_id):
+    """Check the status of a verification session by ID"""
+    try:
+        if not session_id:
+            return jsonify({'error': 'Session ID is required'}), 400
+        
+        if not stripe:
+            return jsonify({'error': 'Stripe not available'}), 500
+        
+        # Retrieve verification session from Stripe
+        verification_session = stripe.identity.VerificationSession.retrieve(session_id)
+        
+        # Find client by session ID
+        client = Client.query.filter_by(stripe_verification_session_id=session_id).first()
+        if not client:
+            return jsonify({'error': 'Client not found'}), 404
+        
+        # Update client based on verification status
+        if verification_session.status == 'verified':
+            client.is_verified = True
+            client.verification_status = 'verified'
+            client.verification_date = datetime.utcnow()
+            client.verification_method = 'stripe_identity'
+            status = 'completed'
+        elif verification_session.status == 'requires_input':
+            client.verification_status = 'failed'
+            status = 'failed'
+        elif verification_session.status == 'processing':
+            client.verification_status = 'processing'
+            status = 'processing'
+        else:
+            status = verification_session.status
+        
+        db.session.commit()
+        
+        return jsonify({
+            'status': status,
+            'client_verified': client.is_verified,
+            'verification_status': client.verification_status
+        })
+        
+    except Exception as e:
+        print(f"Error checking verification session: {str(e)}")
+        return jsonify({'error': 'Failed to check verification session'}), 500
 
