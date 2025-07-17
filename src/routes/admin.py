@@ -377,7 +377,7 @@ ADMIN_TEMPLATE = """
         });
 
         function updateStatus(bookingId, status) {
-            fetch(`/admin/bookings/${bookingId}`, {
+            fetch(`/api/admin/booking/${bookingId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: status })
